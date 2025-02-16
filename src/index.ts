@@ -1,4 +1,4 @@
-import app from "./app";
+import app, { logger } from "./app";
 import connectToDb from "./helpers/DbConnect";
 import mongoose from "mongoose";
 
@@ -8,41 +8,41 @@ async function startServer() {
 
         const PORT = process.env.PORT || 3000;
         const server = app.listen(PORT, function () {
-            console.log("🚀 Server running on http://localhost:" + PORT);
+            logger.info("🚀 Server running on http://localhost:" + PORT);
         });
 
         // Handle graceful shutdown
         process.on("SIGINT", async () => {
-            console.log("🛑 SIGINT received. Closing MongoDB connection...");
+            logger.debug("🛑 SIGINT received. Closing MongoDB connection...");
             await mongoose.disconnect();
-            console.log("⚡ MongoDB Disconnected!");
+            logger.debug("⚡ MongoDB Disconnected!");
             server.close(() => {
-                console.log("💀 Server Stopped");
+                logger.debug("💀 Server Stopped");
                 process.exit(0);
             });
         });
 
         process.on("SIGTERM", async () => {
-            console.log("🛑 SIGTERM received. Closing MongoDB connection...");
+            logger.debug("🛑 SIGTERM received. Closing MongoDB connection...");
             await mongoose.disconnect();
-            console.log("⚡ MongoDB Disconnected!");
+            logger.debug("⚡ MongoDB Disconnected!");
             server.close(() => {
-                console.log("💀 Server Stopped");
+                logger.debug("💀 Server Stopped");
                 process.exit(0);
             });
         });
 
         process.on("uncaughtException", (err) => {
-            console.error("🔥 Uncaught Exception:", err);
+            logger.error("🔥 Uncaught Exception:", err);
             process.exit(1);
         });
 
         process.on("unhandledRejection", (reason, promise) => {
-            console.error("⚠️ Unhandled Rejection at:", promise, "reason:", reason);
+            logger.error("⚠️ Unhandled Rejection at:", promise, "reason:", reason);
         });
 
     } catch (error) {
-        console.error("❌ Failed to Start Server:", error);
+        logger.error("❌ Failed to Start Server:", error);
         process.exit(1);
     }
 }
