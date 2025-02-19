@@ -24,8 +24,10 @@ universalRouter.all("/:resource/:id?", async (req: any, res: any) => {
                 return controller.read(req, res)
             case "POST":
                 return controller.create(req, res)
-            case "PUT":
+            case "PATCH":
                 return controller.update(req, res)
+            case "PUT":
+                return controller.put(req, res)
             case "DELETE":
                 return controller.delete(req, res)
             default:

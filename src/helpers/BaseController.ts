@@ -179,8 +179,55 @@ export default class BaseController {
                 message: error.message,
             });
         }
-    }    
-
+    }
+    
+    public async put(req: Request, res: Response) {
+        const id = req.params?.id;
+        const data = req.body;
+    
+        try {
+            const missingFields = this.requiredFeilds.filter((field) => !(field in data));
+            if (missingFields.length > 0) {
+                return res.status(400).json({
+                    success: false,
+                    message: `Missing required fields for PUT: ${missingFields.join(", ")}`,
+                });
+            }
+    
+            const invalidFields = Object.keys(data).filter((key) => !this.feilds.includes(key));
+            if (invalidFields.length > 0) {
+                return res.status(400).json({
+                    success: false,
+                    message: `Invalid fields in PUT: ${invalidFields.join(", ")}`,
+                });
+            }
+    
+            const updatedDocument = await this.model.findOneAndReplace({ _id: id }, data, {
+                new: true,
+                upsert: false,
+                runValidators: true,
+            });
+    
+            if (!updatedDocument) {
+                return res.status(404).json({
+                    success: false,
+                    message: `Document with id ${id} not found`,
+                });
+            }
+    
+            return res.status(200).json({
+                success: true,
+                data: updatedDocument,
+            });
+        } catch (error) {
+            logger.error(error, error.message);
+            return res.status(500).json({
+                success: false,
+                message: error.message,
+            });
+        }
+    }
+    
     public async delete(req: Request, res: Response) {
         const id = req.params?.id;
     
