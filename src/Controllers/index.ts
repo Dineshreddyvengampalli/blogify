@@ -1,6 +1,6 @@
-import BaseController from "../helpers/BaseController";
-import { Post } from "../models/Post";
-import { User } from "../models/User";
+import BaseController from '../helpers/BaseController';
+import { Post, IPost } from '../models/Post';
+import { User, IUser } from '../models/User';
 
-export const userController = new BaseController(User)
-export const postController = new BaseController(Post)
+export const userController = new BaseController<IUser>(User);
+export const postController = new BaseController<IPost>(Post);
