@@ -43,7 +43,7 @@ export default class BaseController {
         return normalized;
     }
     
-    protected async readById(req: Request, res: Response){
+    public async readById(req: Request, res: Response){
         const id = req.params?.id
 
         const document = await this.model.findById(id)
@@ -56,6 +56,7 @@ export default class BaseController {
 
     public async read(req: Request, res: Response) {
         try {
+            
             const parsedQuery = qs.parse(req.query as any);
             const reqQuery = this.normalizeQuery(parsedQuery);
 
@@ -140,5 +141,69 @@ export default class BaseController {
 
             
 
+    }
+
+    public async update(req: Request, res: Response) {
+        const id = req.params?.id;
+        const updates = req.body;
+    
+        try {
+            const invalidFields = Object.keys(updates).filter((key) => !this.feilds.includes(key));
+            if (invalidFields.length > 0) {
+                return res.status(400).json({
+                    success: false,
+                    message: `Invalid fields in update: ${invalidFields.join(", ")}`,
+                });
+            }
+    
+            const updatedDocument = await this.model.findByIdAndUpdate(id, updates, {
+                new: true,
+                runValidators: true,
+            });
+    
+            if (!updatedDocument) {
+                return res.status(404).json({
+                    success: false,
+                    message: `Document with id ${id} not found`,
+                });
+            }
+    
+            return res.status(200).json({
+                success: true,
+                data: updatedDocument,
+            });
+        } catch (error) {
+            logger.error(error, error.message);
+            return res.status(500).json({
+                success: false,
+                message: error.message,
+            });
+        }
+    }    
+
+    public async delete(req: Request, res: Response) {
+        const id = req.params?.id;
+    
+        try {
+            const deletedDocument = await this.model.findByIdAndDelete(id);
+    
+            if (!deletedDocument) {
+                return res.status(404).json({
+                    success: false,
+                    message: `Document with id ${id} not found`,
+                });
+            }
+    
+            return res.status(200).json({
+                success: true,
+                message: "Document deleted successfully",
+            });
+        } catch (error) {
+            logger.error(error, error.message);
+            return res.status(500).json({
+                success: false,
+                message: error.message,
+            });
+        }
     }
 }

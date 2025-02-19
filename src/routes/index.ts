@@ -4,7 +4,7 @@ import routeControllerMapper from "../helpers/routeControllerMapper";
 const universalRouter: Router = express.Router();
 
 universalRouter.all("/:resource/:id?", async (req: any, res: any) => {
-    const { resource } = req.params;
+    const { resource, id } = req.params;
 
     const controller = routeControllerMapper(resource);
 
@@ -20,9 +20,14 @@ universalRouter.all("/:resource/:id?", async (req: any, res: any) => {
 
         switch (method.toUpperCase()) {
             case "GET":
+                if(id) return controller.readById(req, res)
                 return controller.read(req, res)
             case "POST":
-                return controller.create(req, res);
+                return controller.create(req, res)
+            case "PUT":
+                return controller.update(req, res)
+            case "DELETE":
+                return controller.delete(req, res)
             default:
                 return res.status(405).json({
                     success: false,
