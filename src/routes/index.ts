@@ -1,4 +1,4 @@
-import express, { Request, Response, NextFunction, Router } from 'express';
+import express, { Router, RequestHandler } from 'express';
 import routeControllerMapper from '../helpers/routeControllerMapper';
 import { verifyToken } from '../middleware/authMiddleware';
 import { AuthenticatedRequest } from '../Controllers';
@@ -7,8 +7,9 @@ const universalRouter: Router = express.Router();
 
 universalRouter.use(verifyToken);
 
-universalRouter.all('/:resource/:id?', async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
-  const { resource, id } = req.params;
+const universalHandler: RequestHandler = async (req, res, next) => {
+  const authReq = req as AuthenticatedRequest;
+  const { resource, id } = authReq.params;
   const controller = routeControllerMapper(resource);
 
   if (!controller) {
@@ -20,34 +21,36 @@ universalRouter.all('/:resource/:id?', async (req: AuthenticatedRequest, res: Re
   }
 
   try {
-    const method = req.method.toUpperCase();
+    const method = authReq.method.toUpperCase();
     if (method === 'GET') {
       if (id) {
-        await controller.readById(req, res);
+        await controller.readById(authReq, res);
       } else {
-        await controller.read(req, res);
+        await controller.read(authReq, res);
       }
     } else if (method === 'POST') {
-      await controller.create(req, res);
+      await controller.create(authReq, res);
     } else if (method === 'PATCH') {
-      await controller.update(req, res);
+      await controller.update(authReq, res);
     } else if (method === 'PUT') {
-      await controller.put(req, res);
+      await controller.put(authReq, res);
     } else if (method === 'DELETE') {
-      await controller.delete(req, res);
+      await controller.delete(authReq, res);
     } else {
       res.status(405).json({
         success: false,
         message: `Method '${method}' not allowed for resource '${resource}'.`,
       });
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     res.status(500).json({
       success: false,
       message: 'An unexpected error occurred.',
-      error: error.message,
+      error: error instanceof Error ? error.message : String(error),
     });
   }
-});
+};
+
+universalRouter.all('/:resource/:id?', universalHandler);
 
 export default universalRouter;

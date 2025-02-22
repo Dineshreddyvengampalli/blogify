@@ -1,5 +1,5 @@
 import qs from 'qs';
-import { Request, Response } from 'express';
+import { Response } from 'express';
 import { Model, Document } from 'mongoose';
 import { logger } from '../app';
 import { AuthenticatedRequest } from '../Controllers';
@@ -32,7 +32,7 @@ export default class BaseController<T extends Document> {
     return normalized;
   }
 
-  public async readById(req: Request, res: Response): Promise<Response> {
+  public async readById(req: AuthenticatedRequest, res: Response): Promise<Response> {
     const id = req.params.id;
     const document = await this.model.findById(id);
     return res.status(200).json({
@@ -41,7 +41,7 @@ export default class BaseController<T extends Document> {
     });
   }
 
-  public async read(req: Request, res: Response): Promise<Response> {
+  public async read(req: AuthenticatedRequest, res: Response): Promise<Response> {
     try {
       const parsedQuery = qs.parse(req.query as any);
       const reqQuery = this.normalizeQuery(parsedQuery);
@@ -81,19 +81,19 @@ export default class BaseController<T extends Document> {
         success: true,
         data: documents,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Error in read method:', error);
       return res.status(500).json({
         success: false,
-        message: error.message,
+        message: error instanceof Error ? error.message : String(error),
       });
     }
   }
 
   public async create(req: AuthenticatedRequest, res: Response): Promise<Response> {
     let data = req.body;
-    if(req.authorId){
-      data = {...req.body, authorId: req.authorId}
+    if (req.authorId) {
+      data = { ...req.body, authorId: req.authorId };
     }
     const missingFields = this.requiredFields.filter((field) => !(field in data));
 
@@ -110,16 +110,16 @@ export default class BaseController<T extends Document> {
         success: true,
         data: document,
       });
-    } catch (error: any) {
-      logger.error(error, error.message);
+    } catch (error: unknown) {
+      logger.error(error, error instanceof Error ? error.message : String(error));
       return res.status(500).json({
         success: false,
-        message: error.message,
+        message: error instanceof Error ? error.message : String(error),
       });
     }
   }
 
-  public async update(req: Request, res: Response): Promise<Response> {
+  public async update(req: AuthenticatedRequest, res: Response): Promise<Response> {
     const id = req.params.id;
     const updates = req.body;
 
@@ -148,16 +148,16 @@ export default class BaseController<T extends Document> {
         success: true,
         data: updatedDocument,
       });
-    } catch (error: any) {
-      logger.error(error, error.message);
+    } catch (error: unknown) {
+      logger.error(error, error instanceof Error ? error.message : String(error));
       return res.status(500).json({
         success: false,
-        message: error.message,
+        message: error instanceof Error ? error.message : String(error),
       });
     }
   }
 
-  public async put(req: Request, res: Response): Promise<Response> {
+  public async put(req: AuthenticatedRequest, res: Response): Promise<Response> {
     const id = req.params.id;
     const data = req.body;
 
@@ -195,16 +195,16 @@ export default class BaseController<T extends Document> {
         success: true,
         data: updatedDocument,
       });
-    } catch (error: any) {
-      logger.error(error, error.message);
+    } catch (error: unknown) {
+      logger.error(error, error instanceof Error ? error.message : String(error));
       return res.status(500).json({
         success: false,
-        message: error.message,
+        message: error instanceof Error ? error.message : String(error),
       });
     }
   }
 
-  public async delete(req: Request, res: Response): Promise<Response> {
+  public async delete(req: AuthenticatedRequest, res: Response): Promise<Response> {
     const id = req.params.id;
 
     try {
@@ -221,11 +221,11 @@ export default class BaseController<T extends Document> {
         success: true,
         message: 'Document deleted successfully',
       });
-    } catch (error: any) {
-      logger.error(error, error.message);
+    } catch (error: unknown) {
+      logger.error(error, error instanceof Error ? error.message : String(error));
       return res.status(500).json({
         success: false,
-        message: error.message,
+        message: error instanceof Error ? error.message : String(error),
       });
     }
   }
