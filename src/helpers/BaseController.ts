@@ -2,6 +2,7 @@ import qs from 'qs';
 import { Request, Response } from 'express';
 import { Model, Document } from 'mongoose';
 import { logger } from '../app';
+import { AuthenticatedRequest } from '../Controllers';
 
 export default class BaseController<T extends Document> {
   public model: Model<T>;
@@ -89,8 +90,11 @@ export default class BaseController<T extends Document> {
     }
   }
 
-  public async create(req: Request, res: Response): Promise<Response> {
-    const data = req.body;
+  public async create(req: AuthenticatedRequest, res: Response): Promise<Response> {
+    let data = req.body;
+    if(req.authorId){
+      data = {...req.body, authorId: req.authorId}
+    }
     const missingFields = this.requiredFields.filter((field) => !(field in data));
 
     if (missingFields.length > 0) {

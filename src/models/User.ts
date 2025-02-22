@@ -9,6 +9,7 @@ export interface IUser extends Document {
   role?: 'admin' | 'author' | 'reader';
   createdAt?: Date;
   updatedAt?: Date;
+  _id: string
 }
 
 const userSchema = new Schema({

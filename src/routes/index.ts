@@ -1,12 +1,13 @@
 import express, { Request, Response, NextFunction, Router } from 'express';
 import routeControllerMapper from '../helpers/routeControllerMapper';
 import { verifyToken } from '../middleware/authMiddleware';
+import { AuthenticatedRequest } from '../Controllers';
 
 const universalRouter: Router = express.Router();
 
 universalRouter.use(verifyToken);
 
-universalRouter.all('/:resource/:id?', async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+universalRouter.all('/:resource/:id?', async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
   const { resource, id } = req.params;
   const controller = routeControllerMapper(resource);
 
