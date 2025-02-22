@@ -4,6 +4,7 @@ import pino from 'pino';
 import PinoHttp from 'pino-http';
 import universalRouter from './routes';
 import authRoutes from './routes/authRoutes';
+import cors from 'cors';
 
 export const logger = pino({
   level: 'debug',
@@ -13,6 +14,7 @@ const app: Application = express();
 
 app.use(PinoHttp({ logger }));
 app.use(bodyParser.json());
+app.use(cors());
 
 app.use('/auth', authRoutes);
 

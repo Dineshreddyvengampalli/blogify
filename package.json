@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-"scripts": {
+  "scripts": {
     "build": "esbuild src/index.ts --bundle --platform=node --target=node20 --outdir=dist --sourcemap --external:mock-aws-s3 --external:aws-sdk --external:nock --external:bcrypt --loader:.html=text",
     "dev": "nodemon --watch src --exec \"npm run build && node dist/index.js\""
   },
@@ -11,8 +11,10 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@types/cors": "^2.8.17",
     "bcrypt": "^5.1.1",
     "body-parser": "^1.20.3",
+    "cors": "^2.8.5",
     "express": "^4.21.2",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.9.5",
