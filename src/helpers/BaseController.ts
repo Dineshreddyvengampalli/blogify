@@ -6,7 +6,9 @@ import { AuthenticatedRequest } from '../Controllers';
 
 export default class BaseController<T extends Document> {
   public model: Model<T>;
+
   public requiredFields: string[];
+
   public fields: string[];
 
   constructor(model: Model<T>) {
@@ -15,7 +17,7 @@ export default class BaseController<T extends Document> {
     this.requiredFields = this.model.schema.requiredPaths();
   }
 
-  private normalizeQuery(query: Record<string, any>): Record<string, any> {
+  private static normalizeQuery(query: Record<string, any>): Record<string, any> {
     const normalized: Record<string, any> = {};
     for (const key in query) {
       const value = query[key];
@@ -33,7 +35,7 @@ export default class BaseController<T extends Document> {
   }
 
   public async readById(req: AuthenticatedRequest, res: Response): Promise<Response> {
-    const id = req.params.id;
+    const { id } = req.params;
     const document = await this.model.findById(id);
     return res.status(200).json({
       success: true,
@@ -44,9 +46,9 @@ export default class BaseController<T extends Document> {
   public async read(req: AuthenticatedRequest, res: Response): Promise<Response> {
     try {
       const parsedQuery = qs.parse(req.query as any);
-      const reqQuery = this.normalizeQuery(parsedQuery);
+      const reqQuery = BaseController.normalizeQuery(parsedQuery);
       const { filter, search } = reqQuery;
-      let query: Record<string, any> = {};
+      const query: Record<string, any> = {};
 
       if (filter && typeof filter === 'object') {
         const filterKeys = Object.keys(filter);
@@ -120,7 +122,7 @@ export default class BaseController<T extends Document> {
   }
 
   public async update(req: AuthenticatedRequest, res: Response): Promise<Response> {
-    const id = req.params.id;
+    const { id } = req.params;
     const updates = req.body;
 
     try {
@@ -158,7 +160,7 @@ export default class BaseController<T extends Document> {
   }
 
   public async put(req: AuthenticatedRequest, res: Response): Promise<Response> {
-    const id = req.params.id;
+    const { id } = req.params;
     const data = req.body;
 
     try {
@@ -205,7 +207,7 @@ export default class BaseController<T extends Document> {
   }
 
   public async delete(req: AuthenticatedRequest, res: Response): Promise<Response> {
-    const id = req.params.id;
+    const { id } = req.params;
 
     try {
       const deletedDocument = await this.model.findByIdAndDelete(id);

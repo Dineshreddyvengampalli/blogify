@@ -2,9 +2,9 @@ import express, { Application } from 'express';
 import bodyParser from 'body-parser';
 import pino from 'pino';
 import PinoHttp from 'pino-http';
+import cors from 'cors';
 import universalRouter from './routes';
 import authRoutes from './routes/authRoutes';
-import cors from 'cors';
 
 export const logger = pino({
   level: 'debug',

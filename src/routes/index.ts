@@ -7,7 +7,7 @@ const universalRouter: Router = express.Router();
 
 universalRouter.use(verifyToken);
 
-const universalHandler: RequestHandler = async (req, res, next) => {
+const universalHandler: RequestHandler = async (req, res) => {
   const authReq = req as AuthenticatedRequest;
   const { resource, id } = authReq.params;
   const controller = routeControllerMapper(resource);

@@ -14,9 +14,9 @@ export interface IPost extends Document {
 }
 
 const postSchema = new Schema({
-  title:  { type: String, required: true },
-  slug:   { type: String, required: true, unique: true },
-  content:{ type: String, required: true },
+  title: { type: String, required: true },
+  slug: { type: String, required: true, unique: true },
+  content: { type: String, required: true },
   authorId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
   likesCount: { type: Number, default: 0 },
   commentsCount: { type: Number, default: 0 },

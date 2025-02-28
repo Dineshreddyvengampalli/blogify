@@ -38,10 +38,12 @@ router.post('/signup', async (req: Request, res: Response): Promise<void> => {
       passwordHash,
     });
 
+    /* eslint-disable no-underscore-dangle */
+
     const token = jwt.sign(
       { id: newUser._id.toString(), email: newUser.email, username: newUser.username },
       JWT_SECRET,
-      { expiresIn: JWT_EXPIRES_IN } as jwt.SignOptions
+      { expiresIn: JWT_EXPIRES_IN } as jwt.SignOptions,
     );
 
     res.status(201).json({
@@ -85,11 +87,12 @@ router.post('/signin', async (req: Request, res: Response): Promise<void> => {
       });
       return;
     }
+    /* eslint-disable no-underscore-dangle */
 
     const token = jwt.sign(
       { id: user._id.toString(), email: user.email, username: user.username },
       JWT_SECRET,
-      { expiresIn: JWT_EXPIRES_IN } as jwt.SignOptions
+      { expiresIn: JWT_EXPIRES_IN } as jwt.SignOptions,
     );
 
     res.status(200).json({
