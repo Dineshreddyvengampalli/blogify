@@ -1,35 +1,62 @@
 version: 2.1
 
+orbs:
+  node: circleci/node@5.6.2
+
 jobs:
   build:
     docker:
-      - image: circleci/node:20
-      - image: mongo:latest
-    environment:
-      MONGO_URL: mongodb://localhost:27017/testdb
+      - image: cimg/node:20.10
     steps:
       - checkout
-      - restore_cache:
-          key: dependency-cache-{{ checksum "package-lock.json" }}
+      - node/install-packages:
+          pkg-manager: npm
       - run:
-          name: Install dependencies
-          command: npm install
-      - save_cache:
-          key: dependency-cache-{{ checksum "package-lock.json" }}
-          paths:
-            - node_modules
-      - run:
-          name: Lint Code
+          name: Lint
           command: npm run lint
       - run:
-          name: Build Project
+          name: Build
           command: npm run build
       - run:
-          name: Run Tests
+          name: Test
           command: npm run test
+      - persist_to_workspace:
+          root: .
+          paths:
+            - dist/
+            - package.json
+            - package-lock.json
+
+  deploy:
+    docker:
+      - image: cimg/node:20.10
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - run:
+          name: Install dependencies for deployment (if needed)
+          command: npm install --production # Install production dependencies
+      - run:
+          name: Deploy to production (example deployment)
+          command: |
+            # Replace with your actual deployment commands
+            echo "Deploying to production..."
+            # Example using node to run dist/index.js
+            # node dist/index.js # or your deployment command
+            echo "Deployment complete."
 
 workflows:
-  version: 2
-  build_and_test:
+  build-and-deploy:
     jobs:
-      - build
+      - build:
+          filters:
+            branches:
+              ignore: /^release-.*/
+      - deploy:
+          requires:
+            - build
+          filters:
+            branches:
+              only:
+                - main
