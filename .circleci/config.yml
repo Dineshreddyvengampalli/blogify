@@ -4,10 +4,9 @@ jobs:
   build:
     docker:
       - image: circleci/node:20
-        environment:
-          MONGO_URL: mongodb://localhost:27017/testdb
-    services:
-      - mongodb
+      - image: mongo:latest
+    environment:
+      MONGO_URL: mongodb://localhost:27017/testdb
     steps:
       - checkout
       - restore_cache:
